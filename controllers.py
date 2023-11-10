@@ -11,7 +11,7 @@ def validate_url(url: str) -> bool:
     # проверяются ТОЛЬКО ссылки на домены из списка checked_hosts
     # ссылки на прочие домены пропускаются
     if parsed_url.hostname in checked_hosts:
-        # разрешены ссылки ТОЛЬКО на группы из списка allowed_paths (добавляем /название группы)
+        # разрешены ссылки ТОЛЬКО на группы из списка allowed_groups (добавляем /название группы)
         # будут забанены так же все ссылки на личные страницы и страницы ботов
         if parsed_url.path in allowed_groups:
             return True
