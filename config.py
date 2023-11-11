@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     BOT_TOKEN: SecretStr
     BAN_TIME: int
     ADMINS: list[int]
-    CHANNEL_CHAT_ID: int
 
     class Config:
         env_file = '.env'
