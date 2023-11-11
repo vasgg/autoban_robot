@@ -2,6 +2,8 @@ import time
 from urllib.parse import urlparse
 import logging
 from aiogram import types, exceptions
+from aiogram.enums import MessageEntityType
+
 from config import allowed_groups, checked_hosts, settings
 
 
@@ -24,8 +26,6 @@ def validate_url(url: str) -> bool:
 
 
 async def ban_user(message: types.Message) -> None:
-    if message.from_user.full_name == 'Telegram':
-        return
     current_time = int(time.time())
     # прибавляем к текущему таймштампу время бана из .env в секундах (по умолчанию 1 неделя)
     until_date = current_time + settings.BAN_TIME
@@ -42,16 +42,19 @@ async def ban_user(message: types.Message) -> None:
                                           until_date=until_date,
                                           revoke_messages=True)
     except exceptions.TelegramBadRequest as e:
-        print(f'Cant remove chat owner of admin. {e}')
+        logging.warning(f'Cant remove chat owner of admin. {e}')
 
 
-async def parse_entities(message: types.Message) -> None:
-    entities = message.entities
-    if entities:
-        for entity in entities:
-            hidden_url = entity.url
-            url = message.text[entity.offset:entity.offset + entity.length]
-            if url and not validate_url(url):
-                await ban_user(message)
-            if hidden_url and not validate_url(hidden_url):
-                await ban_user(message)
+def should_be_banned(entities: list[types.MessageEntity], text: str) -> bool:
+    for entity in entities:
+        if entity.type == MessageEntityType.TEXT_LINK:
+            url = entity.url
+        elif entity.type == MessageEntityType.URL:
+            url = text[entity.offset:entity.offset + entity.length]
+        else:
+            continue
+
+        if not validate_url(url):
+            return True
+
+    return False

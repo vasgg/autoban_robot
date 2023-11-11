@@ -1,10 +1,11 @@
 import logging
 
 from aiogram import Bot, Dispatcher, Router, types
+from aiogram.enums import ContentType
 from aiogram.filters import CommandStart
 
 from config import settings
-from controllers import parse_entities
+from controllers import should_be_banned, ban_user
 
 router = Router()
 
@@ -17,16 +18,29 @@ async def start_message(message: types.Message) -> None:
 
 @router.message()
 async def process_messages(message: types.Message):
-    logging.info('is topic message: ', message.is_topic_message)
-    logging.info('message_thread_id: ', message.message_thread_id)
-    logging.info('forward_from_chat:', message.forward_from_chat)
-    logging.info('forward_from:', message.forward_from)
-    logging.info('chat', message.chat)
-    logging.info('chat_shared: ', message.chat_shared)
-    if message.from_user.id not in settings.ADMINS:
-        await parse_entities(message)
+    logging.info(f'is topic message: {message.is_topic_message}')
+    logging.info(f'message_thread_id: {message.message_thread_id}' )
+    logging.info(f'forward_from_chat: {message.forward_from_chat}')
+    logging.info(f'forward_from: {message.forward_from}')
+    logging.info(f'chat {message.chat}')
+    logging.info(f'chat_shared: {message.chat_shared}')
+    if message.from_user.id in settings.ADMINS:
+        logging.info('IS ADMIN MESSAGE')
+        return
+
+    if message.from_user.full_name == 'Telegram':
+        logging.info('Message from Channel')
+        return
+
+    if message.content_type == ContentType.TEXT:
+        entities = message.entities
+        text = message.text
     else:
-        print('IS ADMIN MESSAGE')
+        entities = message.caption_entities
+        text = message.caption
+
+    if entities and should_be_banned(entities, text):
+        await ban_user(message)
 
 
 def main():
