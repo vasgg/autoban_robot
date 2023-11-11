@@ -6,6 +6,9 @@ from config import allowed_groups, checked_hosts, settings
 
 
 def validate_url(url: str) -> bool:
+
+    if not url.startswith('http'):
+        url = 'https://' + url
     parsed_url = urlparse(url)
     # проверяются ТОЛЬКО ссылки на домены из списка checked_hosts
     # ссылки на прочие домены пропускаются
@@ -21,10 +24,13 @@ def validate_url(url: str) -> bool:
 
 
 async def ban_user(message: types.Message) -> None:
+    if message.from_user.full_name == 'Telegram':
+        return
     current_time = int(time.time())
     # прибавляем к текущему таймштампу время бана из .env в секундах (по умолчанию 1 неделя)
     until_date = current_time + settings.BAN_TIME
     # удаляем сообщение с рекламной ссылкой
+
     await message.delete()
     await message.answer('Ссылки на другие телеграм каналы запрещены!\n'
                          f'Пользователь <b>{message.from_user.full_name}</b> забанен!')
@@ -39,12 +45,13 @@ async def ban_user(message: types.Message) -> None:
         print(f'Cant remove chat owner of admin. {e}')
 
 
-
 async def parse_entities(message: types.Message) -> None:
     entities = message.entities
     if entities:
         for entity in entities:
             hidden_url = entity.url
             url = message.text[entity.offset:entity.offset + entity.length]
-            if not validate_url(hidden_url) or not validate_url(url):
+            if url and not validate_url(url):
+                await ban_user(message)
+            if hidden_url and not validate_url(hidden_url):
                 await ban_user(message)

@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.filters import CommandStart
 
@@ -15,12 +17,12 @@ async def start_message(message: types.Message) -> None:
 
 @router.message()
 async def process_messages(message: types.Message):
-    print('is topic message: ', message.is_topic_message)
-    print('message_thread_id: ', message.message_thread_id)
-    print('forward_from_chat:', message.forward_from_chat)
-    print('forward_from:', message.forward_from)
-    print('chat', message.chat)
-    print('chat_shared: ', message.chat_shared)
+    logging.info('is topic message: ', message.is_topic_message)
+    logging.info('message_thread_id: ', message.message_thread_id)
+    logging.info('forward_from_chat:', message.forward_from_chat)
+    logging.info('forward_from:', message.forward_from)
+    logging.info('chat', message.chat)
+    logging.info('chat_shared: ', message.chat_shared)
     if message.from_user.id not in settings.ADMINS:
         await parse_entities(message)
     else:

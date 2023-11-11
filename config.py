@@ -17,6 +17,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s: "
