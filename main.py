@@ -15,7 +15,16 @@ async def start_message(message: types.Message) -> None:
 
 @router.message()
 async def process_messages(message: types.Message):
-    await parse_entities(message)
+    print('is topic message: ', message.is_topic_message)
+    print('message_thread_id: ', message.message_thread_id)
+    print('forward_from_chat:', message.forward_from_chat)
+    print('forward_from:', message.forward_from)
+    print('chat', message.chat)
+    print('chat_shared: ', message.chat_shared)
+    if message.from_user.id not in settings.ADMINS:
+        await parse_entities(message)
+    else:
+        print('IS ADMIN MESSAGE')
 
 
 def main():

@@ -1,8 +1,7 @@
 import time
 from urllib.parse import urlparse
-
-from aiogram import types
-
+import logging
+from aiogram import types, exceptions
 from config import allowed_groups, checked_hosts, settings
 
 
@@ -31,10 +30,14 @@ async def ban_user(message: types.Message) -> None:
                          f'Пользователь <b>{message.from_user.full_name}</b> забанен!')
     # тут можно не передавать параметр until_date, тогда бан будет навсегда
     # revoke_messages - это удаление всех сообщений этого пользователя из чата
-    await message.bot.ban_chat_member(chat_id=message.chat.id,
-                                      user_id=message.from_user.id,
-                                      until_date=until_date,
-                                      revoke_messages=True)
+    try:
+        await message.bot.ban_chat_member(chat_id=message.chat.id,
+                                          user_id=message.from_user.id,
+                                          until_date=until_date,
+                                          revoke_messages=True)
+    except exceptions.TelegramBadRequest as e:
+        print(f'Cant remove chat owner of admin. {e}')
+
 
 
 async def parse_entities(message: types.Message) -> None:
