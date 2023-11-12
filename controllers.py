@@ -26,6 +26,7 @@ def validate_url(url: str) -> bool:
 
 
 async def ban_user(message: types.Message) -> None:
+    logging.info("Trying to ban...")
     current_time = int(time.time())
     # прибавляем к текущему таймштампу время бана из .env в секундах (по умолчанию 1 неделя)
     until_date = current_time + settings.BAN_TIME
