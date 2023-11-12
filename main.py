@@ -18,12 +18,7 @@ async def start_message(message: types.Message) -> None:
 
 @router.message()
 async def process_messages(message: types.Message):
-    logging.info(f'is topic message: {message.is_topic_message}')
-    logging.info(f'message_thread_id: {message.message_thread_id}' )
-    logging.info(f'forward_from_chat: {message.forward_from_chat}')
-    logging.info(f'forward_from: {message.forward_from}')
-    logging.info(f'chat {message.chat}')
-    logging.info(f'chat_shared: {message.chat_shared}')
+    logging.info(message.model_dump_json(exclude_none=True))
     if message.from_user.id in settings.ADMINS:
         logging.info('IS ADMIN MESSAGE')
         return

@@ -32,8 +32,6 @@ async def ban_user(message: types.Message) -> None:
     # удаляем сообщение с рекламной ссылкой
 
     await message.delete()
-    await message.answer('Ссылки на другие телеграм каналы запрещены!\n'
-                         f'Пользователь <b>{message.from_user.full_name}</b> забанен!')
     # тут можно не передавать параметр until_date, тогда бан будет навсегда
     # revoke_messages - это удаление всех сообщений этого пользователя из чата
     try:
@@ -50,9 +48,11 @@ def should_be_banned(entities: list[types.MessageEntity], text: str) -> bool:
         if entity.type == MessageEntityType.TEXT_LINK:
             url = entity.url
         elif entity.type == MessageEntityType.URL:
-            url = text[entity.offset:entity.offset + entity.length]
+            url = entity.extract_from(text)
         else:
             continue
+
+        logging.info(f"Detected url: {url}")
 
         if not validate_url(url):
             return True
