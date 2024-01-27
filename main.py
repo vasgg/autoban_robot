@@ -23,8 +23,8 @@ async def process_messages(message: types.Message):
         logging.info('IS ADMIN MESSAGE')
         return
 
-    if message.from_user.full_name == 'Telegram':
-        logging.info('Message from Channel')
+    if message.from_user.full_name in ['Telegram', 'Channel', 'Group']:
+        logging.info('Message from Channel or Chat, ignoring...')
         return
 
     if message.content_type == ContentType.TEXT:
